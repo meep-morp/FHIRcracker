@@ -14,7 +14,7 @@ import { NvidiaRetrieverService } from "../services/nvidia-retriever.service";
 import { FhirBatchRequestDto, SummaryResponseDto } from "../dto/fhir.dto";
 
 @ApiTags("FHIR Summarization")
-@Controller("api/fhir")
+@Controller("fhir")
 @UseInterceptors(ClassSerializerInterceptor)
 export class FhirController {
 	private readonly logger = new Logger(FhirController.name);
