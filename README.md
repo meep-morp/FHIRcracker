@@ -8,7 +8,7 @@ patient data across multiple FHIR resources.
 
 ## ✨ Features
 
-- **AI-Powered Summarization**: Uses NVIDIA's NeMo Retriever OCR model for medical data
+- **AI-Powered Summarization**: Uses NVIDIA's llama-3_1-70b-instruct model for medical data
   summarization
 - **FHIR Bundle Processing**: Handles FHIR Bundle resources with batch entries
 - **Resource Recognition**: Automatically processes Patient, Condition, Medication, Observation, and
@@ -25,7 +25,7 @@ patient data across multiple FHIR resources.
 
 - Node.js 18+
 - npm or yarn
-- NVIDIA API key (for NeMo Retriever OCR access)
+- NVIDIA API key
 
 ### Installation
 
@@ -188,7 +188,7 @@ src/
 
 | Variable         | Description                           | Default     | Required |
 | ---------------- | ------------------------------------- | ----------- | -------- |
-| `NVIDIA_API_KEY` | NVIDIA API key for NeMo Retriever OCR | -           | ✅       |
+| `NVIDIA_API_KEY` | NVIDIA API key for llama-instruct     | -           | ✅       |
 | `PORT`           | Server port                           | 3000        | ❌       |
 | `NODE_ENV`       | Environment                           | development | ❌       |
 | `CORS_ORIGIN`    | CORS origins                          | \*          | ❌       |
@@ -278,28 +278,28 @@ For support and questions:
 
 ## 🔮 AI Model Information
 
-This service uses NVIDIA's NeMo Retriever OCR model, specifically designed for medical data
+This service uses NVIDIA's llama-3_1-70b-instruct model, specifically designed for data
 processing:
 
 - **Model**: `meta/llama-3.1-405b-instruct`
 - **Context Window**: Variable based on model configuration
-- **Specialization**: Medical data analysis and summarization with OCR capabilities
+- **Specialization**: Data analysis and summarization
 - **Provider**: NVIDIA NIM (NVIDIA Inference Microservices)
 
 ## 🔐 Getting Your NVIDIA API Key
 
-To use FHIRcracker, you'll need an NVIDIA API key for the NeMo Retriever OCR model:
+To use FHIRcracker, you'll need an NVIDIA API key for llama-instruct:
 
 1. **Visit the NVIDIA Build Platform**
 
-   Go to: [NVIDIA Build](https://build.nvidia.com/minimaxai/minimax-m2)
+   Go to: [NVIDIA Build]([https://build.nvidia.com/minimaxai/minimax-m2](https://build.nvidia.com/meta/llama-3_1-70b-instruct))
 
 2. **Create an Account or Sign In**
 
    If you don't have an NVIDIA Developer account, you'll need to create one.
 
 3. **Generate Your API Key**
-   - Navigate to the integration section
+   - Navigate to the deploy section
    - Click "Get API Key" or similar option
    - Copy your generated API key
 
