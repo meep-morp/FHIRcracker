@@ -4,8 +4,7 @@
 Retriever OCR AI**
 
 FHIRcracker is a NestJS-based service that processes FHIR (Fast Healthcare Interoperability
-Resources) batch data and generates intelligent, human-readable summaries using NVIDIA's NeMo
-Retriever OCR AI model. Perfect for healthcare professionals who need to quickly understand complex
+Resources) batch data and generates intelligent, human-readable summaries using NVIDIA's `llama-3_1-70b-instruct` model. Perfect for healthcare professionals who need to quickly understand complex
 patient data across multiple FHIR resources.
 
 ## ✨ Features
