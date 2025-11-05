@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { FhirController } from "./controllers/fhir.controller";
 import { FhirService } from "./services/fhir.service";
-import { NvidiaRetrieverService } from "./services/nvidia-retriever.service";
+import { NvidiaAiService } from "./services/nvidia-ai.service";
 import appConfig, { nvidiaConfig, fhirConfig } from "./config/app.config";
 
 @Module({
@@ -18,6 +18,6 @@ import appConfig, { nvidiaConfig, fhirConfig } from "./config/app.config";
 		}),
 	],
 	controllers: [FhirController],
-	providers: [FhirService, NvidiaRetrieverService],
+	providers: [FhirService, NvidiaAiService],
 })
 export class AppModule {}

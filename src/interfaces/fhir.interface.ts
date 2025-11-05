@@ -102,7 +102,7 @@ export interface ObservationResource extends FhirResource {
 	};
 }
 
-export interface NvidiaRetrieverRequest {
+export interface NvidiaAiRequest {
 	messages: {
 		role: "system" | "user" | "assistant";
 		content: string;
@@ -113,22 +113,22 @@ export interface NvidiaRetrieverRequest {
 	top_p?: number;
 }
 
-export interface NvidiaRetrieverResponse {
-	id: string;
-	object: string;
-	created: number;
-	model: string;
-	choices: {
-		index: number;
-		message: {
-			role: string;
-			content: string;
+export interface NvidiaAiResponse {
+	id?: string;
+	object?: string;
+	created?: number;
+	model?: string;
+	choices?: {
+		index?: number;
+		message?: {
+			role?: string;
+			content?: string;
 		};
-		finish_reason: string;
+		finish_reason?: string;
 	}[];
-	usage: {
-		prompt_tokens: number;
-		completion_tokens: number;
-		total_tokens: number;
+	usage?: {
+		prompt_tokens?: number;
+		completion_tokens?: number;
+		total_tokens?: number;
 	};
 }

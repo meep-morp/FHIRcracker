@@ -283,7 +283,7 @@ For support and questions:
 This service uses NVIDIA's NeMo Retriever OCR model, specifically designed for medical data
 processing:
 
-- **Model**: `nvidia/nemoretriever-ocr-v1`
+- **Model**: `meta/llama-3.1-405b-instruct`
 - **Context Window**: Variable based on model configuration
 - **Specialization**: Medical data analysis and summarization with OCR capabilities
 - **Provider**: NVIDIA NIM (NVIDIA Inference Microservices)
@@ -294,8 +294,7 @@ To use FHIRcracker, you'll need an NVIDIA API key for the NeMo Retriever OCR mod
 
 1. **Visit the NVIDIA Build Platform**
 
-   Go to:
-   [NVIDIA Build](https://build.nvidia.com/nvidia/nemoretriever-ocr-v1?integrate_nim=true&hosted_api=true&modal=integrate-nim)
+   Go to: [NVIDIA Build](https://build.nvidia.com/minimaxai/minimax-m2)
 
 2. **Create an Account or Sign In**
 

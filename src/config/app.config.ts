@@ -13,7 +13,7 @@ export default registerAs("app", () => ({
 export const nvidiaConfig = registerAs("nvidia", () => ({
 	apiKey: process.env.NVIDIA_API_KEY,
 	baseUrl: "https://integrate.api.nvidia.com/v1",
-	model: "nvidia/nemoretriever-ocr-v1",
+	model: "meta/llama-3.1-405b-instruct",
 	timeout: 60000,
 	maxRetries: 3,
 }));

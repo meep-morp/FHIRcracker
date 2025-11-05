@@ -81,7 +81,7 @@ export class FhirService {
 			}
 		}
 
-		this.logger.log(
+		this.logger.debug(
 			`Extracted resources: ${resources.patients.length} patients, ${resources.conditions.length} conditions, ${resources.medications.length} medications, ${resources.observations.length} observations, ${resources.other.length} other`
 		);
 

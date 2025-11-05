@@ -6,7 +6,7 @@
 
 1. **Node.js 18+**: Download from [nodejs.org](https://nodejs.org/)
 2. **NVIDIA API Key**: Get your API key from
-   [NVIDIA Build](https://build.nvidia.com/nvidia/nemoretriever-ocr-v1?integrate_nim=true&hosted_api=true&modal=integrate-nim)
+   [NVIDIA Build](https://build.nvidia.com/minimaxai/minimax-m2)
 
 ### Step 2: Installation
 

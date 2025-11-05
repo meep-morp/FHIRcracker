@@ -1,0 +1,50 @@
+{
+	"bundle": {
+		"resourceType": "Bundle",
+		"type": "batch",
+		"entry": [
+			{
+				"resource": {
+					"resourceType": "Patient",
+					"id": "patient-simple",
+					"name": [
+						{
+							"given": ["John"],
+							"family": "Doe"
+						}
+					],
+					"gender": "male",
+					"birthDate": "1980-01-01"
+				}
+			},
+			{
+				"resource": {
+					"resourceType": "Condition",
+					"id": "condition-simple",
+					"subject": {
+						"reference": "Patient/patient-simple"
+					},
+					"code": {
+						"coding": [
+							{
+								"system": "http://snomed.info/sct",
+								"code": "73211009",
+								"display": "Diabetes mellitus"
+							}
+						],
+						"text": "Diabetes mellitus"
+					},
+					"clinicalStatus": {
+						"coding": [
+							{
+								"system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+								"code": "active"
+							}
+						]
+					}
+				}
+			}
+		]
+	},
+	"context": "Provide a brief medical summary"
+}

@@ -1,18 +1,18 @@
 import { Injectable, Logger, HttpException, HttpStatus } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import axios, { AxiosResponse } from "axios";
-import { NvidiaRetrieverRequest, NvidiaRetrieverResponse } from "../interfaces/fhir.interface";
+import { NvidiaAiRequest, NvidiaAiResponse } from "../interfaces/fhir.interface";
+import OpenAI from "openai";
 
 @Injectable()
-export class NvidiaRetrieverService {
-	private readonly logger = new Logger(NvidiaRetrieverService.name);
+export class NvidiaAiService {
+	private readonly logger = new Logger(NvidiaAiService.name);
 	private readonly baseUrl = "https://integrate.api.nvidia.com/v1";
-	private readonly model = "nvidia/nemoretriever-ocr-v1";
+	private readonly model = "meta/llama-3.1-405b-instruct";
 
 	constructor(private configService: ConfigService) {}
 
 	/**
-	 * Summarizes FHIR data using NVIDIA's NeMo Retriever OCR model
+	 * Summarizes FHIR data using NVIDIA's Llama AI model
 	 * @param fhirText - Human-readable FHIR data text
 	 * @param context - Optional context for summarization
 	 * @param resourceCount - Number of resources being summarized
@@ -27,7 +27,7 @@ export class NvidiaRetrieverService {
 			const systemPrompt = this.buildSystemPrompt();
 			const userPrompt = this.buildUserPrompt(fhirText, context, resourceCount);
 
-			const request: NvidiaRetrieverRequest = {
+			const request: NvidiaAiRequest = {
 				model: this.model,
 				messages: [
 					{
@@ -40,45 +40,47 @@ export class NvidiaRetrieverService {
 					},
 				],
 				max_tokens: this.calculateMaxTokens(resourceCount),
-				temperature: 0.3,
+				temperature: 0.1,
 				top_p: 0.9,
 			};
 
-			this.logger.log(
-				`Sending request to NVIDIA NeMo Retriever OCR API for ${resourceCount || 0} resources`
-			);
+			this.logger.log(`Sending request to NVIDIA Llama AI API for ${resourceCount || 0} resources`);
 
 			const response = await this.callNvidiaApi(request);
+
+			this.logger.debug(`API Response: ${JSON.stringify(response, null, 2)}`);
 
 			if (!response.choices || response.choices.length === 0) {
 				throw new HttpException("No response from NVIDIA API", HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
-			const summary = response.choices[0].message.content;
+			const summary = response.choices[0].message?.content || "";
 
-			this.logger.log(`Generated summary of ${summary.length} characters`);
+			this.logger.log(
+				`Generated summary of ${summary.length} characters: "${summary.substring(0, 100)}..."`
+			);
 
 			return summary;
 		} catch (error) {
-			this.logger.error("Error calling NVIDIA NeMo Retriever OCR API:", error.message);
+			this.logger.error("Error calling NVIDIA Llama AI API:", error.message);
 
 			if (error instanceof HttpException) {
 				throw error;
 			}
 
 			throw new HttpException(
-				"Failed to generate summary using NVIDIA NeMo Retriever OCR",
+				"Failed to generate summary using NVIDIA Llama AI",
 				HttpStatus.INTERNAL_SERVER_ERROR
 			);
 		}
 	}
 
 	private buildSystemPrompt(): string {
-		return `You are NeMo Retriever OCR, an advanced AI assistant specialized in medical data analysis and summarization. 
+		return `You are an advanced AI assistant specialized in medical data analysis and summarization. 
 Your task is to analyze FHIR (Fast Healthcare Interoperability Resources) data and provide clear, concise, and clinically relevant summaries.
 
 Guidelines for summarization:
-1. Focus on clinically significant information
+1. Focus on clinically significant information, leave out FHIR ids, pretend you are the attending physician summarizing for a colleague. Leave out any intro and only summarize.
 2. Use clear, professional medical language
 3. Organize information logically (patient demographics, conditions, medications, observations)
 4. Highlight important relationships between data elements
@@ -88,6 +90,7 @@ Guidelines for summarization:
 8. If multiple patients are present, organize by patient or provide an overview
 9. Note any concerning findings or patterns
 10. Adapt summary length based on data complexity - use 1-2 paragraphs for simple cases, more for complex cases
+11. DO NOT use special characters or markdown formatting in the summary. It must be plaintext without newlines such as \n or trailing spaces.
 
 Always maintain clinical accuracy and professionalism in your summaries.`;
 	}
@@ -122,7 +125,7 @@ Always maintain clinical accuracy and professionalism in your summaries.`;
 		return 2500;
 	}
 
-	private async callNvidiaApi(request: NvidiaRetrieverRequest): Promise<NvidiaRetrieverResponse> {
+	private async callNvidiaApi(request: NvidiaAiRequest): Promise<NvidiaAiResponse> {
 		const apiKey = this.configService.get<string>("NVIDIA_API_KEY");
 
 		if (!apiKey) {
@@ -133,24 +136,48 @@ Always maintain clinical accuracy and professionalism in your summaries.`;
 		}
 
 		try {
-			const response: AxiosResponse<NvidiaRetrieverResponse> = await axios.post(
-				`${this.baseUrl}/chat/completions`,
-				request,
-				{
-					headers: {
-						"Authorization": `Bearer ${apiKey}`,
-						"Content-Type": "application/json",
-						"User-Agent": "FHIRcracker/1.0.0",
-					},
-					timeout: 60000, // 60 second timeout
-				}
-			);
+			const openai = new OpenAI({
+				apiKey: apiKey,
+				baseURL: this.baseUrl,
+			});
 
-			return response.data;
+			this.logger.log(`Calling NVIDIA API with model: ${request.model}`);
+			this.logger.debug(`Request payload: ${JSON.stringify(request, null, 2)}`);
+
+			const response = await openai.chat.completions.create({
+				model: request.model,
+				messages: request.messages,
+				max_tokens: request.max_tokens,
+				temperature: request.temperature,
+				top_p: request.top_p,
+				stream: false, // Disable streaming for complete response
+			});
+
+			this.logger.debug(`Raw API response: ${JSON.stringify(response, null, 2)}`);
+
+			if (!response) {
+				throw new HttpException("Empty response from NVIDIA API", HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+			return {
+				id: response.id,
+				object: response.object,
+				created: response.created,
+				model: response.model,
+				choices: response.choices.map(choice => ({
+					index: choice.index,
+					message: {
+						role: choice.message.role,
+						content: choice.message.content,
+					},
+					finish_reason: choice.finish_reason,
+				})),
+				usage: response.usage,
+			};
 		} catch (error) {
-			if (error.response) {
-				const status = error.response.status;
-				const message = error.response.data?.error?.message || error.response.statusText;
+			if (error.status) {
+				const status = error.status;
+				const message = error.message;
 
 				this.logger.error(`NVIDIA API error (${status}): ${message}`);
 
@@ -180,7 +207,7 @@ Always maintain clinical accuracy and professionalism in your summaries.`;
 	 */
 	async healthCheck(): Promise<boolean> {
 		try {
-			const testRequest: NvidiaRetrieverRequest = {
+			const testRequest: NvidiaAiRequest = {
 				model: this.model,
 				messages: [
 					{

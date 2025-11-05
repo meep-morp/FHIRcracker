@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiHeader } from "@nestjs/swagger";
 import { FhirService } from "../services/fhir.service";
-import { NvidiaRetrieverService } from "../services/nvidia-retriever.service";
+import { NvidiaAiService } from "../services/nvidia-ai.service";
 import { FhirBatchRequestDto, SummaryResponseDto } from "../dto/fhir.dto";
 
 @ApiTags("FHIR Summarization")
@@ -21,14 +21,14 @@ export class FhirController {
 
 	constructor(
 		private readonly fhirService: FhirService,
-		private readonly nvidiaRetrieverService: NvidiaRetrieverService
+		private readonly nvidiaAiService: NvidiaAiService
 	) {}
 
 	@Post("summarize")
 	@ApiOperation({
 		summary: "Summarize FHIR batch data",
 		description:
-			"Processes a FHIR Bundle and generates an AI-powered summary using NVIDIA NeMo Retriever OCR",
+			"Processes a FHIR Bundle and generates an AI-powered summary using NVIDIA Llama AI",
 	})
 	@ApiBody({
 		type: FhirBatchRequestDto,
@@ -69,8 +69,8 @@ export class FhirController {
 
 			this.logger.log(`Processing ${resourceCount} resources for summarization`);
 
-			// Generate AI summary using NVIDIA NeMo Retriever OCR
-			const summary = await this.nvidiaRetrieverService.summarizeFhirData(
+			// Generate AI summary using NVIDIA Llama AI
+			const summary = await this.nvidiaAiService.summarizeFhirData(
 				humanReadableText,
 				request.context,
 				resourceCount
@@ -94,7 +94,7 @@ export class FhirController {
 	@Get("health")
 	@ApiOperation({
 		summary: "Health check",
-		description: "Checks the health of the FHIR service and NVIDIA NeMo Retriever OCR API",
+		description: "Checks the health of the FHIR service and NVIDIA Llama AI API",
 	})
 	@ApiResponse({
 		status: HttpStatus.OK,
@@ -108,7 +108,7 @@ export class FhirController {
 					type: "object",
 					properties: {
 						fhir: { type: "string", example: "operational" },
-						nvidia_retriever: { type: "string", example: "operational" },
+						nvidia_ai: { type: "string", example: "operational" },
 					},
 				},
 			},
@@ -118,15 +118,15 @@ export class FhirController {
 		this.logger.log("Health check requested");
 
 		try {
-			// Check NVIDIA NeMo Retriever OCR API
-			const nvidiaHealthy = await this.nvidiaRetrieverService.healthCheck();
+			// Check NVIDIA Llama AI API
+			const nvidiaHealthy = await this.nvidiaAiService.healthCheck();
 
 			return {
 				status: "healthy",
 				timestamp: new Date().toISOString(),
 				services: {
 					fhir: "operational",
-					nvidia_retriever: nvidiaHealthy ? "operational" : "degraded",
+					nvidia_ai: nvidiaHealthy ? "operational" : "degraded",
 				},
 			};
 		} catch (error) {
@@ -137,7 +137,7 @@ export class FhirController {
 				timestamp: new Date().toISOString(),
 				services: {
 					fhir: "operational",
-					nvidia_retriever: "unavailable",
+					nvidia_ai: "unavailable",
 				},
 				error: error.message,
 			};
@@ -158,7 +158,7 @@ export class FhirController {
 				name: { type: "string", example: "FHIRcracker" },
 				version: { type: "string", example: "1.0.0" },
 				description: { type: "string" },
-				ai_model: { type: "string", example: "nvidia/nemoretriever-ocr-v1" },
+				ai_model: { type: "string", example: "meta/llama-3.1-405b-instruct" },
 				supported_resources: {
 					type: "array",
 					items: { type: "string" },
@@ -172,8 +172,8 @@ export class FhirController {
 			name: "FHIRcracker",
 			version: "1.0.0",
 			description:
-				"Summarizes large swaths of FHIR Resources via a fhir batch request using NVIDIA NeMo Retriever OCR",
-			ai_model: "nvidia/nemoretriever-ocr-v1",
+				"Summarizes large swaths of FHIR Resources via a fhir batch request using NVIDIA Llama AI",
+			ai_model: "meta/llama-3.1-405b-instruct",
 			supported_resources: [
 				"Patient",
 				"Condition",
